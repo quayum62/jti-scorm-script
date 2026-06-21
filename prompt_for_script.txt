@@ -35,7 +35,7 @@ Then paste or attach the source content.
 ### Document structure (in this order)
 1. **Title row** — full-width span, document name + version + date.
 2. **Column header row** — "English" left, "বাংলা" right, fill `1F4E79`.
-3. **Section 1: Learning Objectives** — English left, Bangla right. The section header in Bangla must read **শিখনফল** (not শেখার উদ্দেশ্য, not শিক্ষার্থীরা). Refer to learners as **অংশগ্রহণকারীরা** in the body text of the Bangla cell.
+3. **Section 1: Learning Objectives** — English left, Bangla right. The section header must also display the document version and date (e.g., "Learning Objectives — Version 03, March 2026" on the English side, with the equivalent on the Bangla side). The section header in Bangla must read **শিখনফল** (not শেখার উদ্দেশ্য, not শিক্ষার্থীরা). Refer to learners as **অংশগ্রহণকারীরা** in the body text of the Bangla cell.
 4. **Video Script** — exactly **one** video script for the entire module. Place it after the Learning Objectives, before the Core Text. Blue section header. Visuals line first, then narration as separate paragraphs. **Hard limit: 100 words total in the narration.** Cover only the most essential, must-learn points of the module — summarize aggressively. Do not produce a second video script anywhere in the document.
 5. **Core Text** — Purpose, Scope, Terms & Definitions, then all procedure sections in order. **Do not use section markers like "D.1", "D.2", "D.1.1" etc.** Use plain descriptive headings instead (e.g., "Contamination Prevention System" not "D.1. Contamination Prevention System"). Skip references, process owner, document history.
 6. **Section: Tooltips / Hover explainers** — 4–6 key terms, format: **Term** → "Definition."
@@ -48,6 +48,54 @@ Then paste or attach the source content.
 - **When a Roman-script technical term appears inside a Bangla sentence, immediately follow it with its Bangla transliteration in parentheses.** Examples: "QMS (কিউএমএস)", "Management (ম্যানেজমেন্ট)", "SPOC (এসপিওসি)", "SOP (এসওপি)", "Review (রিভিউ)". Apply this consistently — every first use of a Roman term within a Bangla passage must carry its transliteration.
 - **Do not transliterate common Bangla words** — use real Bangla for: purpose, scope, frequency, attendance, improvement, records, decisions, training, resources, roles, responsibilities, etc.
 - Aim for the balance: technical jargon stays Roman with transliteration in parentheses; everything else is natural Bangla.
+- Tone: formal, smooth, respectful. Never stiff or overly literal.
+
+### Images
+- If the source document contains images (diagrams, flowcharts, process maps), embed them.
+- Diagrams mid-procedure (e.g., nest hunting steps): use full-width spanning rows (`columnSpan: 2`) with a bilingual caption below.
+- Appendix flowcharts: always full-width spanning rows.
+- Side-by-side images (same image shown in both columns): use `imgRow()` pattern with matching captions.
+- Always read image dimensions first and scale to fit within content width (max ~520pt wide for full-span, ~240pt per column for side-by-side).
+- **If the source document contains no images at all, or if further clarification can be achieved through some explainer image:** do not leave the document image-free. Instead, identify the 3–5 most visually explain-worthy parts of the content (e.g., a process flow, a hierarchy, a decision tree, a comparison table, a key rule set). For each one, generate a detailed image generation prompt that the user can take to ChatGPT or another image tool to create an infographic or explainer illustration. The color guidelines in the prompt should be JTI brand color (#00bb31) compliant. Never use the JTI logo, write that there should be no use of the JTI logo. The images should always be in landscape 16:9, no exceptions. Arrange content and the prompt for image creation accordingly. Make the prompts very detailed so that the image generator understands the task completely. **Output these prompts as a message outside the Word document**, clearly numbered, before presenting the file. Format each prompt as: `[Number]. [Section it illustrates] — [Full image generation prompt]`.
+
+### Sections to skip entirely
+- **ARCI tables** — do not render or convert to bullet lists. Omit from both columns without replacement.
+- **End of Module Test** — do not create any quiz or questionnaire. That will be done separately.
+- **References, Process Owner, Document History** — omit entirely. Retain only supplementary reading content.
+
+### Video script format
+```
+Visuals: [brief visual description → scene → scene]
+Narration:
+"First narration paragraph."
+"Second narration paragraph."
+...
+"Closing line."
+```
+- **Hard cap: 100 words total** across all narration paragraphs combined.
+- Roughly 2–4 short narration paragraphs ending in a punchy closing line.
+- Cover only the absolute must-learn points. Summarize aggressively; do not gloss over safety-critical or compliance-critical points but compress everything else.
+- Visuals line: bold label, plain text description.
+- Each narration paragraph is a separate `p()` call.
+- Only **one** video script per document. Never produce a second one.
+
+---
+
+## Example invocation
+
+> I have attached MFG003SOP Contamination Prevention (Version 03, March 2026). Please create a bilingual Word document using the format and rules above. Retain only the supplementary reading content — skip references, process owner, document history, ARCI tables, and end-of-module test. Include one video script (max 100 words) covering the module's most essential points. Include any images from the source document. If there are no images, give me image generation prompts before the file.
+
+---
+
+## Technical notes for the model
+- Use `docx` npm package. Check it is already globally installed before attempting `npm install`.
+- Output file to `/mnt/user-data/outputs/[FILENAME].docx`.
+- Validate with `python3 /mnt/skills/public/docx/scripts/office/validate.py [FILE]` before presenting.
+- Never use `\n` inside `TextRun` — use separate `Paragraph` elements.
+- Always set both `columnWidths` on the table AND `width` on each cell (dual-width rule).
+- Table width must equal sum of columnWidths exactly.
+- Use `PageOrientation.LANDSCAPE` with portrait dimensions passed (docx-js swaps internally).
+- Unpack source `.docx` files with the unpack script to read content and extract images before building.- Aim for the balance: technical jargon stays Roman with transliteration in parentheses; everything else is natural Bangla.
 - Tone: formal, smooth, respectful. Never stiff or overly literal.
 
 ### Images
